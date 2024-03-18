@@ -1,10 +1,12 @@
-package roomescape;
+package roomescape.presentation;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import roomescape.domain.Reservation;
+import roomescape.exception.NotFoundReservationException;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -12,16 +14,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
-@Controller
-public class ReservationController {
+@RestController
+public class ReservationApiController {
 
     private final List<Reservation> reservations = new ArrayList<>();
     private final AtomicLong index = new AtomicLong(1);
-
-    @GetMapping("/reservation")
-    public String reservation() {
-        return "reservation";
-    }
 
     @GetMapping("/reservations")
     public ResponseEntity<List<Reservation>> read() {
