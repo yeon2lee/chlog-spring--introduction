@@ -1,7 +1,9 @@
 package roomescape;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -27,7 +29,10 @@ public class ReservationController {
     }
 
     @PostMapping("/reservations")
-    public ResponseEntity<Void> create(@RequestBody Reservation reservation) {
+    public ResponseEntity<Void> create(@Valid @RequestBody Reservation reservation, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()){
+            throw new IllegalArgumentException("입력값이 잘못되었습니다");
+        }
         Reservation newReservation = Reservation.toEntity(reservation, index.getAndIncrement());
         reservations.add(newReservation);
         return ResponseEntity.created(URI.create("/reservations/" + newReservation.getId())).build();
@@ -38,10 +43,15 @@ public class ReservationController {
         Reservation reservation = reservations.stream()
                 .filter(it -> Objects.equals(it.getId(), id))
                 .findFirst()
-                .orElseThrow(RuntimeException::new);
+                .orElseThrow(NotFoundReservationException::new);
 
         reservations.remove(reservation);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @ExceptionHandler({NotFoundReservationException.class, IllegalArgumentException.class})
+    public ResponseEntity handleException(RuntimeException e) {
+        return ResponseEntity.badRequest().build();
     }
 }
