@@ -2,7 +2,6 @@ package roomescape.presentation;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import roomescape.domain.Reservation;
@@ -45,10 +44,5 @@ public class ReservationApiController {
         reservations.remove(reservation);
 
         return ResponseEntity.noContent().build();
-    }
-
-    @ExceptionHandler({NotFoundReservationException.class, IllegalArgumentException.class})
-    public ResponseEntity handleException(RuntimeException e) {
-        return ResponseEntity.badRequest().build();
     }
 }
