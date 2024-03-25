@@ -1,10 +1,13 @@
 package roomescape.presentation;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import roomescape.domain.Reservation;
+import roomescape.domain.repository.ReservationRepository;
 import roomescape.exception.NotFoundReservationException;
 
 import java.net.URI;
@@ -14,14 +17,16 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 @RestController
+@RequiredArgsConstructor
 public class ReservationApiController {
 
     private final List<Reservation> reservations = new ArrayList<>();
     private final AtomicLong index = new AtomicLong(1);
+    private final ReservationRepository reservationRepository;
 
     @GetMapping("/reservations")
     public ResponseEntity<List<Reservation>> read() {
-        return ResponseEntity.ok().body(reservations);
+        return ResponseEntity.ok().body(reservationRepository.findAll());
     }
 
     @PostMapping("/reservations")
