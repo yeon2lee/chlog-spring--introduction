@@ -24,4 +24,8 @@ public class ReservationService {
     public Long save(Reservation reservation) {
         return reservationRepository.save(reservation);
     }
+
+    public int delete(Long id) {
+        return reservationRepository.delete(id);
+    }
 }
