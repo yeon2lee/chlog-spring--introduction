@@ -25,13 +25,13 @@ public class ReservationApiController {
     }
 
     @PostMapping("/reservations")
-    public ResponseEntity<Void> create(@Valid @RequestBody Reservation reservation, BindingResult bindingResult) {
+    public ResponseEntity<Reservation> create(@Valid @RequestBody Reservation reservation, BindingResult bindingResult) {
         if (bindingResult.hasErrors()){
             throw new IllegalArgumentException("입력값이 잘못되었습니다");
         }
         Reservation newReservation = Reservation.toEntity(reservation, index.getAndIncrement());
         reservations.add(newReservation);
-        return ResponseEntity.created(URI.create("/reservations/" + newReservation.getId())).build();
+        return ResponseEntity.created(URI.create("/reservations/" + newReservation.getId())).body(newReservation);
     }
 
     @DeleteMapping("/reservations/{id}")
