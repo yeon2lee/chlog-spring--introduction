@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import roomescape.application.ReservationService;
 import roomescape.domain.Reservation;
 import roomescape.domain.repository.ReservationRepository;
 import roomescape.exception.NotFoundReservationException;
@@ -22,11 +23,11 @@ public class ReservationApiController {
 
     private final List<Reservation> reservations = new ArrayList<>();
     private final AtomicLong index = new AtomicLong(1);
-    private final ReservationRepository reservationRepository;
+    private final ReservationService reservationService;
 
     @GetMapping("/reservations")
     public ResponseEntity<List<Reservation>> read() {
-        return ResponseEntity.ok().body(reservationRepository.findAll());
+        return ResponseEntity.ok().body(reservationService.findAll());
     }
 
     @PostMapping("/reservations")
@@ -35,8 +36,8 @@ public class ReservationApiController {
             throw new IllegalArgumentException("입력값이 잘못되었습니다");
         }
         Reservation newReservation = Reservation.toEntity(reservation, index.getAndIncrement());
-        reservations.add(newReservation);
-        return ResponseEntity.created(URI.create("/reservations/" + newReservation.getId())).body(newReservation);
+        Long savedId = reservationService.save(newReservation);
+        return ResponseEntity.created(URI.create("/reservations/" + savedId)).body(newReservation);
     }
 
     @DeleteMapping("/reservations/{id}")

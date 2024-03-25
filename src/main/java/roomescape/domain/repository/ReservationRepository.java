@@ -4,9 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import roomescape.domain.Reservation;
 
+import java.sql.PreparedStatement;
 import java.util.List;
 
 @Repository
@@ -25,6 +28,23 @@ public class ReservationRepository {
     public List<Reservation> findAll() {
         final String sql = "SELECT id, name, date, time FROM reservation";
         return jdbcTemplate.query(sql, reservationRowMapper);
+    }
+
+    public Long save(Reservation reservation) {
+        final String sql = "INSERT INTO reservation (name, date, time) values (?, ?, ?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(
+                    sql,
+                    new String[]{"id"});
+            ps.setString(1, reservation.getName());
+            ps.setString(2, String.valueOf(reservation.getDate()));
+            ps.setString(3, String.valueOf(reservation.getTime()));
+            return ps;
+        }, keyHolder);
+
+        return keyHolder.getKey().longValue();
     }
 
 }

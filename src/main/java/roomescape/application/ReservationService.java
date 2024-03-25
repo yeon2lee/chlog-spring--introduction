@@ -20,4 +20,8 @@ public class ReservationService {
     public List<Reservation> findAll() {
         return reservationRepository.findAll();
     }
+
+    public Long save(Reservation reservation) {
+        return reservationRepository.save(reservation);
+    }
 }
