@@ -1,20 +1,17 @@
 package roomescape.domain.repository;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import roomescape.domain.Reservation;
-import roomescape.exception.NotFoundReservationException;
+import roomescape.domain.repository.query.ReservationQuery;
 
-import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static roomescape.domain.repository.query.ReservationQuery.*;
 
 @Repository
 public class ReservationRepository {
@@ -37,8 +34,7 @@ public class ReservationRepository {
     };
 
     public List<Reservation> findAll() {
-        final String sql = "SELECT id, name, date, time FROM reservation";
-        return jdbcTemplate.query(sql, reservationRowMapper);
+        return jdbcTemplate.query(FIND_ALL.getQuery(), reservationRowMapper);
     }
 
     public Reservation save(final Reservation reservation) {
@@ -53,12 +49,11 @@ public class ReservationRepository {
     }
 
     public int count() {
-        return jdbcTemplate.queryForObject("select count(*) from reservation", Integer.class);
+        return jdbcTemplate.queryForObject(COUNT.getQuery(), Integer.class);
     }
 
     public int delete(Long id) {
-        final String sql = "DELETE FROM reservation WHERE id = ?";
-        return jdbcTemplate.update(sql, id);
+        return jdbcTemplate.update(DELETE.getQuery(), id);
     }
 
 }
