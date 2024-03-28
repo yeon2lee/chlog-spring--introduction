@@ -30,7 +30,7 @@ public class ReservationRepository {
         return jdbcTemplate.query(sql, reservationRowMapper);
     }
 
-    public Long save(Reservation reservation) {
+    public Reservation save(final Reservation reservation) {
         final String sql = "INSERT INTO reservation (name, date, time) values (?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -44,7 +44,7 @@ public class ReservationRepository {
             return ps;
         }, keyHolder);
 
-        return keyHolder.getKey().longValue();
+        return new Reservation(keyHolder.getKey().longValue(), reservation.getName(), reservation.getDate(), reservation.getTime());
     }
 
     public int delete(Long id) {

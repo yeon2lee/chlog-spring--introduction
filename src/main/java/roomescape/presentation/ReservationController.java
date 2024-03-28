@@ -6,7 +6,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import roomescape.application.ReservationService;
+import roomescape.application.dto.ReservationDto;
+import roomescape.application.dto.ReservationInfoDto;
 import roomescape.domain.Reservation;
+import roomescape.presentation.dto.request.ReservationReq;
+import roomescape.presentation.dto.response.ReservationRes;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -18,23 +22,33 @@ import java.util.concurrent.atomic.AtomicLong;
 @RequestMapping("/reservations")
 public class ReservationController {
 
-    private final List<Reservation> reservations = new ArrayList<>();
-    private final AtomicLong index = new AtomicLong(1);
     private final ReservationService reservationService;
 
     @GetMapping("")
-    public ResponseEntity<List<Reservation>> read() {
-        return ResponseEntity.ok().body(reservationService.findAll());
+    public ResponseEntity<List<ReservationRes>> read() {
+        List<ReservationInfoDto> reservationInfoDtos = reservationService.findAll();
+        List<ReservationRes> responses = reservationInfoDtos.stream()
+                .map(ReservationRes::from)
+                .toList();
+        return ResponseEntity.ok().body(responses);
     }
 
     @PostMapping("")
-    public ResponseEntity<Reservation> create(@Valid @RequestBody Reservation reservation, BindingResult bindingResult) {
+    @ResponseBody
+    public ResponseEntity<ReservationRes> create(@Valid @RequestBody final ReservationReq request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()){
             throw new IllegalArgumentException("입력값이 잘못되었습니다");
         }
-        Reservation newReservation = Reservation.toEntity(reservation, index.getAndIncrement());
-        Long savedId = reservationService.save(newReservation);
-        return ResponseEntity.created(URI.create("/reservations/" + savedId)).body(newReservation);
+
+        final ReservationDto reservationDto = new ReservationDto(
+                request.getName(),
+                request.getDate(),
+                request.getTime()
+        );
+        ReservationInfoDto saved = reservationService.save(reservationDto);
+        ReservationRes response = ReservationRes.from(saved);
+
+        return ResponseEntity.created(URI.create("/reservations/" + saved.getId())).body(response);
     }
 
     @DeleteMapping("{id}")
