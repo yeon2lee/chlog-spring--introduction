@@ -8,14 +8,11 @@ import org.springframework.web.bind.annotation.*;
 import roomescape.application.ReservationService;
 import roomescape.application.dto.ReservationDto;
 import roomescape.application.dto.ReservationInfoDto;
-import roomescape.domain.Reservation;
 import roomescape.presentation.dto.request.ReservationReq;
 import roomescape.presentation.dto.response.ReservationRes;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,8 +31,7 @@ public class ReservationController {
     }
 
     @PostMapping("")
-    @ResponseBody
-    public ResponseEntity<ReservationRes> create(@Valid @RequestBody final ReservationReq request, BindingResult bindingResult) {
+    public ResponseEntity<ReservationRes> create(@Valid final ReservationReq request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()){
             throw new IllegalArgumentException("입력값이 잘못되었습니다");
         }
