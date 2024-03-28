@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -11,12 +12,21 @@ import roomescape.domain.Reservation;
 import roomescape.exception.NotFoundReservationException;
 
 import java.sql.PreparedStatement;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
-@RequiredArgsConstructor
 public class ReservationRepository {
     private final JdbcTemplate jdbcTemplate;
+    private final SimpleJdbcInsert simpleJdbcInsert;
+
+    public ReservationRepository(final JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("reservation")
+                .usingGeneratedKeyColumns("id");
+    }
 
     private final RowMapper<Reservation> reservationRowMapper = (rs, rowNum) -> {
         return new Reservation(
@@ -32,20 +42,14 @@ public class ReservationRepository {
     }
 
     public Reservation save(final Reservation reservation) {
-        final String sql = "INSERT INTO reservation (name, date, time) values (?, ?, ?)";
-        KeyHolder keyHolder = new GeneratedKeyHolder();
+        final Map<String, Object> params = new HashMap<>();
+        params.put("name", reservation.getName());
+        params.put("date", reservation.getDate());
+        params.put("time", reservation.getTime());
 
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(
-                    sql,
-                    new String[]{"id"});
-            ps.setString(1, reservation.getName());
-            ps.setString(2, String.valueOf(reservation.getDate()));
-            ps.setString(3, String.valueOf(reservation.getTime()));
-            return ps;
-        }, keyHolder);
+        final long savedId = simpleJdbcInsert.executeAndReturnKey(params).longValue();
 
-        return new Reservation(keyHolder.getKey().longValue(), reservation.getName(), reservation.getDate(), reservation.getTime());
+        return new Reservation(savedId, reservation.getName(), reservation.getDate(), reservation.getTime());
     }
 
     public int count() {
