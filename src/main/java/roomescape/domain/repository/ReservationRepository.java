@@ -8,6 +8,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import roomescape.domain.Reservation;
+import roomescape.exception.NotFoundReservationException;
 
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -47,8 +48,15 @@ public class ReservationRepository {
         return new Reservation(keyHolder.getKey().longValue(), reservation.getName(), reservation.getDate(), reservation.getTime());
     }
 
+    public int count() {
+        return jdbcTemplate.queryForObject("select count(*) from reservation", Integer.class);
+    }
+
     public int delete(Long id) {
         final String sql = "DELETE FROM reservation WHERE id = ?";
+        if (count() == 0) {
+            throw new NotFoundReservationException("존재하지 않는 예약입니다.");
+        }
         return jdbcTemplate.update(sql, id);
     }
 
