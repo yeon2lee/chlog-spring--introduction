@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ReservationQuery {
     FIND_ALL("SELECT id, name, date, time FROM reservation"),
-    COUNT("select count(*) from reservation"),
+    EXIST_BY_ID("SELECT COUNT(*) FROM reservation WHERE id = ?"),
     DELETE("DELETE FROM reservation WHERE id = ?");
 
     private final String query;

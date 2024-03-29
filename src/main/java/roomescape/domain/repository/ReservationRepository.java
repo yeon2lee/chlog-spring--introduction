@@ -47,8 +47,9 @@ public class ReservationRepository {
         return new Reservation(savedId, reservation.getName(), reservation.getDate(), reservation.getTime());
     }
 
-    public int count() {
-        return jdbcTemplate.queryForObject(COUNT.getQuery(), Integer.class);
+    public boolean existById(final Long id) {
+        final Long count = jdbcTemplate.queryForObject(EXIST_BY_ID.getQuery(), Long.class, id);
+        return count != null && count > 0;
     }
 
     public int delete(Long id) {
