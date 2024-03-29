@@ -31,7 +31,7 @@ public class ReservationController {
     }
 
     @PostMapping("")
-    public ResponseEntity<ReservationRes> create(@Valid final ReservationReq request, BindingResult bindingResult) {
+    public ResponseEntity<ReservationRes> create(@Valid @RequestBody final ReservationReq request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()){
             throw new IllegalArgumentException("입력값이 잘못되었습니다");
         }
